@@ -14,6 +14,7 @@ const (
 func main() {
 	app := cli.NewApp()
 	app.Name = "nextmuni"
+	app.Version = "1.0.0"
 	app.Description = "An app to get nextbus predictions for the SF Muni."
 
 	muniClient := client.New(muniAgencyTag)
@@ -32,6 +33,15 @@ func main() {
 			Action: func(c *cli.Context) error {
 				route := c.Args().First()
 				return muniClient.ListStops(route)
+			},
+		},
+		{
+			Name:  "predictions",
+			Usage: "list the predicitons at the specified route and stop",
+			Action: func(c *cli.Context) error {
+				route := c.Args().Get(0)
+				stop := c.Args().Get(1)
+				return muniClient.ListPredictions(route, stop)
 			},
 		},
 	}
