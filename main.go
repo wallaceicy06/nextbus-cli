@@ -14,6 +14,7 @@ const (
 func main() {
 	app := cli.NewApp()
 	app.Name = "nextmuni"
+	app.Usage = "Retrieve muni arrival time predictions."
 	app.Version = "1.0.0"
 	app.Description = "An app to get nextbus predictions for the SF Muni."
 
