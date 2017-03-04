@@ -42,13 +42,13 @@ func (c *Client) ListStops(route string) error {
 
 	rtCfgs, err := c.nb.GetRouteConfig(c.agency, nextbus.RouteConfigTag(route))
 	if err != nil {
-		return fmt.Errorf("error getting route config for '%v': %v", route, err)
+		return fmt.Errorf("error getting route config for %q: %v", route, err)
 	}
 
 	if len(rtCfgs) == 0 {
-		return fmt.Errorf("invalid route identifier '%v'", route)
+		return fmt.Errorf("invalid route identifier %q", route)
 	} else if len(rtCfgs) > 1 {
-		return fmt.Errorf("non-unique route identifier '%v'", route)
+		return fmt.Errorf("non-unique route identifier %q", route)
 	}
 
 	stops := rtCfgs[0].StopList
@@ -63,14 +63,14 @@ func (c *Client) ListStops(route string) error {
 func (c *Client) ListPredictions(route string, stop string) error {
 	preds, err := c.nb.GetPredictions(c.agency, route, stop)
 	if err != nil {
-		return fmt.Errorf("error getting predictions for route '%v' at stop '%v': %v",
+		return fmt.Errorf("error getting predictions for route %q at stop %q: %v",
 			route, stop, err.Error())
 	}
 
 	if len(preds) == 0 {
-		return fmt.Errorf("invalid route '%v' or stop identifier '%v'", route, stop)
+		return fmt.Errorf("invalid route %q or stop identifier %q", route, stop)
 	} else if len(preds) > 1 {
-		return fmt.Errorf("invalid route '%v' and stop identifier '%v'", route, stop)
+		return fmt.Errorf("invalid route %q and stop identifier %q", route, stop)
 	}
 
 	pred := preds[0].PredictionDirectionList
