@@ -1,6 +1,9 @@
 # Swap files
 *.swp
 
+# Binary
+nextbus-cli
+
 # Binaries for programs and plugins
 *.exe
 *.dll
