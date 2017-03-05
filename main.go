@@ -27,21 +27,21 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:  "agencies",
-			Usage: "list the agencies available from nextbus",
+			Usage: "list all agency tags and names available from nextbus",
 			Action: func(c *cli.Context) error {
 				return client.New(agency).ListAgencies()
 			},
 		},
 		{
 			Name:  "routes",
-			Usage: "list the routes in the system",
+			Usage: "list all route tags and route names in the specified agency",
 			Action: func(c *cli.Context) error {
 				return client.New(agency).ListRoutes()
 			},
 		},
 		{
 			Name:  "stops",
-			Usage: "list the stops on the specified route",
+			Usage: "list all stop tags and names on the specified route",
 			Action: func(c *cli.Context) error {
 				route := c.Args().First()
 				return client.New(agency).ListStops(route)
@@ -49,7 +49,7 @@ func main() {
 		},
 		{
 			Name:  "predictions",
-			Usage: "list the predicitons at the specified route and stop",
+			Usage: "list up to two next predictions at the specified route and stop",
 			Action: func(c *cli.Context) error {
 				route := c.Args().Get(0)
 				stop := c.Args().Get(1)

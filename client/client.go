@@ -42,7 +42,7 @@ func (c *Client) ListRoutes() error {
 	}
 
 	for _, r := range routes {
-		fmt.Printf("%-8v%v\n", r.Tag, r.Title)
+		fmt.Printf("%-10s %s\n", r.Tag, r.Title)
 	}
 
 	return nil
@@ -67,7 +67,7 @@ func (c *Client) ListStops(route string) error {
 
 	stops := rtCfgs[0].StopList
 	for _, s := range stops {
-		fmt.Printf("%-8v%v\n", s.Tag, s.Title)
+		fmt.Printf("%-10s %s\n", s.Tag, s.Title)
 	}
 
 	return nil
@@ -92,9 +92,9 @@ func (c *Client) ListPredictions(route string, stop string) error {
 		if len(dir.PredictionList) == 0 {
 			continue
 		} else if len(dir.PredictionList) == 1 {
-			fmt.Printf("%v: %v mins\n", dir.Title, dir.PredictionList[0].Minutes)
+			fmt.Printf("%s: %s mins\n", dir.Title, dir.PredictionList[0].Minutes)
 		} else {
-			fmt.Printf("%v: %v & %v mins\n", dir.Title,
+			fmt.Printf("%s: %s & %s mins\n", dir.Title,
 				dir.PredictionList[0].Minutes, dir.PredictionList[1].Minutes)
 		}
 	}
