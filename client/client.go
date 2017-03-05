@@ -20,6 +20,20 @@ func New(agency string) *Client {
 	}
 }
 
+// ListAgencies lists the all agencies served by nextbus.
+func (c *Client) ListAgencies() error {
+	agencies, err := c.nb.GetAgencyList()
+	if err != nil {
+		return fmt.Errorf("error getting agencies: %v", err.Error())
+	}
+
+	for _, a := range agencies {
+		fmt.Printf("%-20s %s\n", a.Tag, a.Title)
+	}
+
+	return nil
+}
+
 // ListRoutes lists the all routes in the system.
 func (c *Client) ListRoutes() error {
 	routes, err := c.nb.GetRouteList(c.agency)
