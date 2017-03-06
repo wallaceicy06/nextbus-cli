@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"github.com/wallaceicy07/nextbus-cli/client"
+	"github.com/wallaceicy06/nextbus-cli/client"
 )
 
 func main() {
