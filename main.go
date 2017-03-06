@@ -4,17 +4,18 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"github.com/wallaceicy06/nextbus-cli/client"
+	"github.com/wallaceicy07/nextbus-cli/client"
 )
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "nextbus-cli"
 	app.Usage = "Retrieve muni arrival time predictions."
-	app.Version = "1.0.1"
+	app.Version = "1.0.2"
 	app.Description = "An app to get nextbus predictions for the SF Muni."
 
 	var agency string
+	var bound int
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
@@ -22,6 +23,12 @@ func main() {
 			Value:       "sf-muni",
 			Usage:       "agency for prediction lookups",
 			Destination: &agency,
+		},
+		cli.IntFlag{
+			Name:        "bound, b",
+			Value:       30,
+			Usage:       "Prediction times greater than this limit will be omitted",
+			Destination: &bound,
 		},
 	}
 	app.Commands = []cli.Command{
@@ -53,7 +60,7 @@ func main() {
 			Action: func(c *cli.Context) error {
 				route := c.Args().Get(0)
 				stop := c.Args().Get(1)
-				return client.New(agency).ListPredictions(route, stop)
+				return client.New(agency).ListPredictions(route, stop, bound)
 			},
 		},
 	}

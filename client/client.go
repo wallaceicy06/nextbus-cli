@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/dinedal/nextbus"
 )
@@ -74,7 +75,8 @@ func (c *Client) ListStops(route string) error {
 }
 
 // ListPredictions lists the predictions for service for the specified route and stop.
-func (c *Client) ListPredictions(route string, stop string) error {
+// Predictions with no prediction less than bound will be omitted.
+func (c *Client) ListPredictions(route string, stop string, bound int) error {
 	preds, err := c.nb.GetPredictions(c.agency, route, stop)
 	if err != nil {
 		return fmt.Errorf("error getting predictions for route %q at stop %q: %v",
@@ -91,8 +93,18 @@ func (c *Client) ListPredictions(route string, stop string) error {
 	for _, dir := range pred {
 		if len(dir.PredictionList) == 0 {
 			continue
-		} else if len(dir.PredictionList) == 1 {
-			fmt.Printf("%s: %s mins\n", dir.Title, dir.PredictionList[0].Minutes)
+		}
+
+		// If the first prediction is greater than the bound, then skip this
+		// prediction and move on to the next one.
+		if firstPred, err := strconv.Atoi(dir.PredictionList[0].Minutes); err != nil {
+			return fmt.Errorf("non-numerical minute prediction received: %v", err)
+		} else if firstPred > bound {
+			continue
+		}
+
+		if len(dir.PredictionList) == 1 {
+			fmt.Printf("%s: %s mins\n", dir.Title, dir.PredictionList[1].Minutes)
 		} else {
 			fmt.Printf("%s: %s & %s mins\n", dir.Title,
 				dir.PredictionList[0].Minutes, dir.PredictionList[1].Minutes)
