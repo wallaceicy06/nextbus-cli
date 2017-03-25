@@ -2,7 +2,9 @@ package client
 
 import (
 	"fmt"
+	"os"
 	"strconv"
+	"text/tabwriter"
 
 	"github.com/dinedal/nextbus"
 )
@@ -28,9 +30,16 @@ func (c *Client) ListAgencies() error {
 		return fmt.Errorf("error getting agencies: %v", err.Error())
 	}
 
+	format := "%v\t%v\n"
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintf(tw, format, "Tag", "Title")
+	fmt.Fprintf(tw, format, "---", "-----")
+
 	for _, a := range agencies {
-		fmt.Printf("%-20s %s\n", a.Tag, a.Title)
+		fmt.Fprintf(tw, format, a.Tag, a.Title)
 	}
+
+	tw.Flush()
 
 	return nil
 }
@@ -42,9 +51,16 @@ func (c *Client) ListRoutes() error {
 		return fmt.Errorf("error getting routes: %v", err.Error())
 	}
 
+	format := "%v\t%v\n"
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintf(tw, format, "Tag", "Title")
+	fmt.Fprintf(tw, format, "---", "-----")
+
 	for _, r := range routes {
-		fmt.Printf("%-10s %s\n", r.Tag, r.Title)
+		fmt.Fprintf(tw, format, r.Tag, r.Title)
 	}
+
+	tw.Flush()
 
 	return nil
 }
@@ -67,9 +83,17 @@ func (c *Client) ListStops(route string) error {
 	}
 
 	stops := rtCfgs[0].StopList
+
+	format := "%v\t%v\n"
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintf(tw, format, "Tag", "Title")
+	fmt.Fprintf(tw, format, "---", "-----")
+
 	for _, s := range stops {
-		fmt.Printf("%-10s %s\n", s.Tag, s.Title)
+		fmt.Fprintf(tw, format, s.Tag, s.Title)
 	}
+
+	tw.Flush()
 
 	return nil
 }
@@ -89,6 +113,11 @@ func (c *Client) ListPredictions(route string, stop string, bound int) error {
 		return fmt.Errorf("invalid route %q and stop identifier %q", route, stop)
 	}
 
+	format := "%v\t%v\n"
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintf(tw, format, "Route", "Next Arrivals")
+	fmt.Fprintf(tw, format, "-----", "-------------")
+
 	pred := preds[0].PredictionDirectionList
 	for _, dir := range pred {
 		if len(dir.PredictionList) == 0 {
@@ -104,11 +133,15 @@ func (c *Client) ListPredictions(route string, stop string, bound int) error {
 		}
 
 		if len(dir.PredictionList) == 1 {
-			fmt.Printf("%s: %s mins\n", dir.Title, dir.PredictionList[1].Minutes)
+			fmt.Fprintf(tw, format, dir.Title,
+				fmt.Sprintf("%s mins", dir.PredictionList[1].Minutes))
 		} else {
-			fmt.Printf("%s: %s & %s mins\n", dir.Title,
-				dir.PredictionList[0].Minutes, dir.PredictionList[1].Minutes)
+			fmt.Fprintf(tw, format, dir.Title,
+				fmt.Sprintf("%s & %s mins", dir.PredictionList[0].Minutes, dir.PredictionList[1].Minutes))
 		}
 	}
+
+	tw.Flush()
+
 	return nil
 }
