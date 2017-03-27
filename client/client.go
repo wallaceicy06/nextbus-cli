@@ -30,7 +30,7 @@ func (c *Client) ListAgencies() error {
 		return fmt.Errorf("error getting agencies: %v", err.Error())
 	}
 
-	format := "%v\t%v\n"
+	format := "%s\t%s\n"
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
 	fmt.Fprintf(tw, format, "Tag", "Title")
 	fmt.Fprintf(tw, format, "---", "-----")
@@ -51,7 +51,7 @@ func (c *Client) ListRoutes() error {
 		return fmt.Errorf("error getting routes: %v", err.Error())
 	}
 
-	format := "%v\t%v\n"
+	format := "%s\t%s\n"
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
 	fmt.Fprintf(tw, format, "Tag", "Title")
 	fmt.Fprintf(tw, format, "---", "-----")
@@ -84,13 +84,59 @@ func (c *Client) ListStops(route string) error {
 
 	stops := rtCfgs[0].StopList
 
-	format := "%v\t%v\n"
+	format := "%s\t%s\t%s\n"
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
-	fmt.Fprintf(tw, format, "Tag", "Title")
-	fmt.Fprintf(tw, format, "---", "-----")
+	fmt.Fprintf(tw, format, "Tag", "ID", "Title")
+	fmt.Fprintf(tw, format, "---", "--", "-----")
 
 	for _, s := range stops {
-		fmt.Fprintf(tw, format, s.Tag, s.Title)
+		fmt.Fprintf(tw, format, s.Tag, s.StopID, s.Title)
+	}
+
+	tw.Flush()
+
+	return nil
+}
+
+// ListPredictions lists the predictions for service for the specified stop.
+// Predictions with no prediction less than bound will be omitted.
+func (c *Client) ListStopPredictions(stopID string, bound int) error {
+	preds, err := c.nb.GetStopPredictions(c.agency, stopID)
+	if err != nil {
+		return fmt.Errorf("error getting predictions for stop %q: %v", stopID, err.Error())
+	}
+
+	if len(preds) == 0 {
+		return fmt.Errorf("invalid stop identifier %q", stopID)
+	}
+
+	format := "%s\t%s\t%s\n"
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
+	fmt.Fprintf(tw, format, "Route", "Direction", "Next Arrivals")
+	fmt.Fprintf(tw, format, "-----", "---------", "-------------")
+
+	for _, pred := range preds {
+		for _, dir := range pred.PredictionDirectionList {
+			if len(dir.PredictionList) == 0 {
+				continue
+			}
+
+			// If the first prediction is greater than the bound, then skip this
+			// prediction and move on to the next one.
+			if firstPred, err := strconv.Atoi(dir.PredictionList[0].Minutes); err != nil {
+				return fmt.Errorf("non-numerical minute prediction received: %v", err)
+			} else if firstPred > bound {
+				continue
+			}
+
+			if len(dir.PredictionList) == 1 {
+				fmt.Fprintf(tw, format, pred.RouteTitle, dir.Title,
+					fmt.Sprintf("%s mins", dir.PredictionList[0].Minutes))
+			} else {
+				fmt.Fprintf(tw, format, pred.RouteTitle, dir.Title,
+					fmt.Sprintf("%s & %s mins", dir.PredictionList[0].Minutes, dir.PredictionList[1].Minutes))
+			}
+		}
 	}
 
 	tw.Flush()
@@ -113,7 +159,7 @@ func (c *Client) ListPredictions(route string, stop string, bound int) error {
 		return fmt.Errorf("invalid route %q and stop identifier %q", route, stop)
 	}
 
-	format := "%v\t%v\n"
+	format := "%s\t%s\n"
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 2, ' ', 0)
 	fmt.Fprintf(tw, format, "Route", "Next Arrivals")
 	fmt.Fprintf(tw, format, "-----", "-------------")
